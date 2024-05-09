@@ -1,0 +1,36 @@
+{
+  "name": "champion-videos",
+  "license": "LGPL-3.0-only",
+  "packageManager": "yarn@1.22.19",
+  "scripts": {
+    "start": "ts-node src",
+    "dev": "ts-node-dev src",
+    "build": "tsc -p .",
+    "compile:windows": "nexe ./build/index.js --build -o ./bin/ability-downloader.exe",
+    "compile:macos": "nexe ./build/index.js --build --python=$(which python3) -o ./bin/ability-downloader",
+    "compile:linux": "nexe ./build/index.js --build --python=$(which python3) -o ./bin/ability-downloader"
+  },
+  "devDependencies": {
+    "@types/download": "^8.0.5",
+    "@types/node": "^20.12.11",
+    "@types/targz": "^1.0.4",
+    "@typescript-eslint/eslint-plugin": "^7.8.0",
+    "@typescript-eslint/parser": "^7.8.0",
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "nexe": "^4.0.0-rc.6",
+    "prettier": "^3.2.5",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "axios": "^1.6.8",
+    "commander": "^12.0.0",
+    "download": "^8.0.0",
+    "fs-extra": "^11.2.0",
+    "targz": "^1.0.1",
+    "tracer": "^1.3.0"
+  }
+}

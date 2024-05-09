@@ -53,6 +53,28 @@ async function downloadFiles(options: options) {
 
                 logger.trace(`Downloaded "${abilityVideoPath}".`);
             });
+
+            data.spellbookOverride.forEach((arr) => {
+                arr.forEach(({ abilityVideoPath, name }) => {
+                    logger.info(`Downloading ${abilityVideoPath}!`);
+
+                    if (abilityVideoPath === '') {
+                        logger.error(`${name} could not be downloaded, most likely doesn't exist.`);
+                        return;
+                    }
+
+                    try {
+                        download(
+                            `https://d28xe8vt774jo5.cloudfront.net/${abilityVideoPath}`,
+                            `${options.output}/${abilityVideoPath.split('/').slice(0, -1).join('/')}`,
+                        );
+                    } catch (e) {
+                        logger.error(`${abilityVideoPath} could not be downloaded, most likely doesn't exist.`);
+                    }
+
+                    logger.trace(`Downloaded "${abilityVideoPath}".`);
+                });
+            });
         }
 
         return;
@@ -96,6 +118,28 @@ async function downloadFiles(options: options) {
             }
 
             logger.trace(`Downloaded "${abilityVideoPath}".`);
+        });
+
+        data.spellbookOverride.forEach((arr) => {
+            arr.forEach(({ abilityVideoPath, name }) => {
+                logger.info(`Downloading ${abilityVideoPath}!`);
+
+                if (abilityVideoPath === '') {
+                    logger.error(`${name} could not be downloaded, most likely doesn't exist.`);
+                    return;
+                }
+
+                try {
+                    download(
+                        `https://d28xe8vt774jo5.cloudfront.net/${abilityVideoPath}`,
+                        `${options.output}/${abilityVideoPath.split('/').slice(0, -1).join('/')}`,
+                    );
+                } catch (e) {
+                    logger.error(`${abilityVideoPath} could not be downloaded, most likely doesn't exist.`);
+                }
+
+                logger.trace(`Downloaded "${abilityVideoPath}".`);
+            });
         });
     }
 

@@ -12,6 +12,8 @@ const ChampionBasePath =
 
 interface options {
     output: string | undefined;
+    compress: boolean | undefined;
+    champions: string | undefined;
 }
 
 async function downloadFiles(options: options) {
@@ -19,6 +21,41 @@ async function downloadFiles(options: options) {
     if (!options.output) {
         logger.warn('The output directory has not been defined. Defaulting to "./out".');
         options.output = './out';
+    }
+
+    if (options.champions) {
+        const championIds = options.champions.split(',');
+
+        for (let i = 0; i < championIds.length; i++) {
+            // Replace the placeholder {id} with the champions ID.
+            const champUrl = ChampionBasePath.replace('{id}', championIds[i]);
+
+            const req = await axios.get(champUrl);
+
+            const data = req.data;
+
+            data.spells.forEach(({ abilityVideoPath, name }) => {
+                logger.info(`Downloading ${abilityVideoPath}!`);
+
+                if (abilityVideoPath === '') {
+                    logger.error(`${name} could not be downloaded, most likely doesn't exist.`);
+                    return;
+                }
+
+                try {
+                    download(
+                        `https://d28xe8vt774jo5.cloudfront.net/${abilityVideoPath}`,
+                        `${options.output}/${abilityVideoPath.split('/').slice(0, -1).join('/')}`,
+                    );
+                } catch (e) {
+                    logger.error(`${abilityVideoPath} could not be downloaded, most likely doesn't exist.`);
+                }
+
+                logger.trace(`Downloaded "${abilityVideoPath}".`);
+            });
+        }
+
+        return;
     }
 
     // Get the champion ID's,
@@ -41,9 +78,14 @@ async function downloadFiles(options: options) {
 
         const data = req.data;
 
-        data.spells.forEach(({ abilityVideoPath }) => {
+        data.spells.forEach(({ abilityVideoPath, name }) => {
             logger.info(`Downloading ${abilityVideoPath}!`);
-            // Attempt to download the champion ability video some may not exist.
+
+            if (abilityVideoPath === '') {
+                logger.error(`${name} could not be downloaded, most likely doesn't exist.`);
+                return;
+            }
+
             try {
                 download(
                     `https://d28xe8vt774jo5.cloudfront.net/${abilityVideoPath}`,
@@ -58,23 +100,27 @@ async function downloadFiles(options: options) {
     }
 
     // Compress the videos into a tarball
-    targz.compress(
-        {
-            src: options.output + '/champion-abilities',
-            dest: options.output + '/champion-abilities.tar.gz',
-        },
-        function (err) {
-            if (err) {
-                logger.error(err);
-            } else {
-                logger.info('Successfully created compressed files!');
-            }
-        },
-    );
+    if (options.compress) {
+        targz.compress(
+            {
+                src: options.output + '/champion-abilities',
+                dest: options.output + '/champion-abilities.tar.gz',
+            },
+            function (err) {
+                if (err) {
+                    logger.error(err);
+                } else {
+                    logger.info('Successfully created compressed files!');
+                }
+            },
+        );
+    }
 }
 
 const program = new Command()
-    .option('-o, --output <output>', 'Output directory location. Default is ./out')
+    .option('-o, --output <output>', 'Output directory location. Default is "./out".')
+    .option('-C --compress', 'Compress the final results into a tarball.')
+    .option('-c --champions <champion ids>', 'A csv of champions to exclusively download.')
     .action(async (options: options) => await downloadFiles(options))
     .version('1.0.0');
 

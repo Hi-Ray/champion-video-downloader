@@ -34,29 +34,33 @@ async function downloadFiles(options: options) {
 
             const data = req.data;
 
-            data.spells.forEach(({ abilityVideoPath, name }) => {
+            for (const { abilityVideoPath, name } of data.spells) {
                 logger.info(`Downloading ${abilityVideoPath}!`);
 
                 if (abilityVideoPath === '') {
                     logger.error(`${name} could not be downloaded, most likely doesn't exist.`);
-                    return;
+                    continue;
                 }
 
                 try {
-                    download(
-                        `https://d28xe8vt774jo5.cloudfront.net/${abilityVideoPath}`,
-                        `${options.output}/${abilityVideoPath.split('/').slice(0, -1).join('/')}`,
-                    );
+                    const success = await axios.get(`https://lol.dyn.riotcdn.net/x/videos/${abilityVideoPath}`);
+
+                    if (success.status === 200) {
+                        download(
+                            `https://lol.dyn.riotcdn.net/x/videos/${abilityVideoPath}`,
+                            `${options.output}/${abilityVideoPath.split('/').slice(0, -1).join('/')}`,
+                        );
+                    }
                 } catch (e) {
                     logger.error(`${abilityVideoPath} could not be downloaded, most likely doesn't exist.`);
                 }
 
                 logger.trace(`Downloaded "${abilityVideoPath}".`);
-            });
+            }
 
             try {
                 data.spellbookOverride.forEach((arr) => {
-                    arr.forEach(({ abilityVideoPath, name }) => {
+                    arr.forEach(async ({ abilityVideoPath, name }) => {
                         logger.info(`Downloading ${abilityVideoPath}!`);
 
                         if (abilityVideoPath === '') {
@@ -65,10 +69,14 @@ async function downloadFiles(options: options) {
                         }
 
                         try {
-                            download(
-                                `https://d28xe8vt774jo5.cloudfront.net/${abilityVideoPath}`,
-                                `${options.output}/${abilityVideoPath.split('/').slice(0, -1).join('/')}`,
-                            );
+                            const success = await axios.get(`https://lol.dyn.riotcdn.net/x/videos/${abilityVideoPath}`);
+
+                            if (success.status === 200) {
+                                download(
+                                    `https://lol.dyn.riotcdn.net/x/videos/${abilityVideoPath}`,
+                                    `${options.output}/${abilityVideoPath.split('/').slice(0, -1).join('/')}`,
+                                );
+                            }
                         } catch (e) {
                             logger.error(`${abilityVideoPath} could not be downloaded, most likely doesn't exist.`);
                         }
@@ -104,48 +112,56 @@ async function downloadFiles(options: options) {
 
         const data = req.data;
 
-        data.spells.forEach(({ abilityVideoPath, name }) => {
+        for (const { abilityVideoPath, name } of data.spells) {
             logger.info(`Downloading ${abilityVideoPath}!`);
 
             if (abilityVideoPath === '') {
                 logger.error(`${name} could not be downloaded, most likely doesn't exist.`);
-                return;
+                continue;
             }
 
             try {
-                download(
-                    `https://d28xe8vt774jo5.cloudfront.net/${abilityVideoPath}`,
-                    `${options.output}/${abilityVideoPath.split('/').slice(0, -1).join('/')}`,
-                );
+                const success = await axios.get(`https://lol.dyn.riotcdn.net/x/videos/${abilityVideoPath}`);
+
+                if (success.status === 200) {
+                    download(
+                        `https://lol.dyn.riotcdn.net/x/videos/${abilityVideoPath}`,
+                        `${options.output}/${abilityVideoPath.split('/').slice(0, -1).join('/')}`,
+                    );
+                }
             } catch (e) {
                 logger.error(`${abilityVideoPath} could not be downloaded, most likely doesn't exist.`);
             }
 
             logger.trace(`Downloaded "${abilityVideoPath}".`);
-        });
+        }
 
         try {
-            data.spellbookOverride.forEach((arr) => {
-                arr.forEach(({ abilityVideoPath, name }) => {
+            for (const arr of data.spellbookOverride) {
+                for (const { abilityVideoPath, name } of arr) {
                     logger.info(`Downloading ${abilityVideoPath}!`);
 
                     if (abilityVideoPath === '') {
                         logger.error(`${name} could not be downloaded, most likely doesn't exist.`);
-                        return;
+                        continue;
                     }
 
                     try {
-                        download(
-                            `https://d28xe8vt774jo5.cloudfront.net/${abilityVideoPath}`,
-                            `${options.output}/${abilityVideoPath.split('/').slice(0, -1).join('/')}`,
-                        );
+                        const success = await axios.get(`https://lol.dyn.riotcdn.net/x/videos/${abilityVideoPath}`);
+
+                        if (success.status === 200) {
+                            download(
+                                `https://lol.dyn.riotcdn.net/x/videos/${abilityVideoPath}`,
+                                `${options.output}/${abilityVideoPath.split('/').slice(0, -1).join('/')}`,
+                            );
+                        }
                     } catch (e) {
                         logger.error(`${abilityVideoPath} could not be downloaded, most likely doesn't exist.`);
                     }
 
                     logger.trace(`Downloaded "${abilityVideoPath}".`);
-                });
-            });
+                }
+            }
         } catch (e) {
             logger.warn('No additional videos found');
         }
